@@ -9,13 +9,18 @@ const Logger = (logString: string) => {
 }
 
 function WithTemplate(template: string, hookdId: string) {
-  return function(constructor: any) {
-    const hookEl = document.getElementById(hookdId);
-    const person = new constructor();
-    if (hookEl) {
-      console.log('Rendering template')
-      hookEl.innerHTML = template;
-      hookEl.querySelector('h1')!.textContent = person.name;
+  return function<T extends {new(...args: any[]): {name: string}}>(originalContructor: T) {
+    return class extends originalContructor {
+      constructor(..._: any[]) {
+        super();
+        const hookEl = document.getElementById(hookdId);
+
+        console.log('Rendering template')
+        if (hookEl) {
+          hookEl.innerHTML = template;
+          hookEl.querySelector('h1')!.textContent = this.name;
+        }
+      }
     }
   }
 }
