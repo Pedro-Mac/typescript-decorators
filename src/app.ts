@@ -75,3 +75,32 @@ class Product {
     return this._price * (1+tax);
   }
 }
+
+// --- Creating an decorator that binds 'this' to the class on event listener
+
+function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const adjustedDecriptor: PropertyDescriptor = {
+    configurable: true,
+    enumerable: false,
+    get() {
+      const boundFunction = originalMethod.bind(this); // *this* refers to what is responsible for triggering the getter method 
+      return boundFunction;
+    }
+  };
+  return adjustedDecriptor;
+}
+
+
+class Printer {
+  message = 'The click worked';
+
+  @Autobind
+  showMessage() {
+    console.log(this.message);
+  }
+}
+
+const printMessage = new Printer();
+
+document.querySelector('button')!.addEventListener('click', printMessage.showMessage);
